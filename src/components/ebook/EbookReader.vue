@@ -11,12 +11,27 @@ import {
   getFontFamily,
   saveFontFamily,
   getFontSize,
-  saveFontSize
+  saveFontSize,
+  getTheme,
+  saveTheme
 } from "../../utils/localStoreage.js";
 
 export default {
   mixins: [ebookMixin],
   methods: {
+    // 初始化主题样式
+    initTheme() {
+      let defaultTheme = getTheme(this.fileName);
+      if (!defaultTheme) {
+        defaultTheme = this.themeList[0].name;
+        this.setDefaultTheme(defaultTheme);
+        saveTheme(this.fileName, defaultTheme);
+      }
+      this.themeList.forEach(theme => {
+        this.rendition.themes.register(theme.name, theme.style)
+      })
+      this.rendition.themes.select(defaultTheme)
+    },
     // 初始化字号配置数据
     initFontSize() {
       let fontSize = getFontSize(this.fileName);
@@ -54,6 +69,7 @@ export default {
       // 展示电子书内容
       this.rendition.display().then(() => {
         // 从离线存储中获取并应用配置数据
+        this.initTheme();
         this.initFontSize();
         this.initFontFamily();
       });
