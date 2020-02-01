@@ -18,7 +18,7 @@ export default {
 
       // 解析电子书并渲染
       this.book = new Epub(url);
-      this.setCurrentBook(this.book)
+      this.setCurrentBook(this.book);
       console.log(this.book);
       this.rendition = this.book.renderTo("read", {
         width: window.innerWidth,
@@ -49,6 +49,18 @@ export default {
         // event.preventDefault(); // 禁用默认事件调用
         event.stopPropagation(); // 禁止事件传播
       });
+
+      // 加载阅读器渲染用字体文件
+      this.rendition.hooks.content.register(contents => {
+        Promise.all([
+          contents.addStylesheet(`${process.env.VUE_APP_RES_URL}/fonts/cabin.css`),
+          contents.addStylesheet(`${process.env.VUE_APP_RES_URL}/fonts/daysOne.css`),
+          contents.addStylesheet(`${process.env.VUE_APP_RES_URL}/fonts/tangerine.css`),
+          contents.addStylesheet(`${process.env.VUE_APP_RES_URL}/fonts/montserrat.css`)
+        ]).then(() => {
+          console.log('字体加载完成.')
+        });
+      });
     },
     // 上一页
     prevPage() {
@@ -68,6 +80,7 @@ export default {
     toggleTitleAndMenu() {
       if (this.menuVisible) {
         this.setSettingVisible(-1);
+        this.setFontFamilyVisible(false);
       }
       this.setMenuVisible(!this.menuVisible);
     },
@@ -75,6 +88,7 @@ export default {
     hideTitleAndMenu() {
       this.setMenuVisible(false);
       this.setSettingVisible(-1);
+      this.setFontFamilyVisible(false);
     }
   },
   mounted() {

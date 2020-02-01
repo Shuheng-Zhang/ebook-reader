@@ -38,12 +38,10 @@
 </template>
 
 <script>
-import { ebookMixin } from '../../utils/mixin'
-import { FONT_SIZE_LIST } from '../../utils/book';
+import { ebookMixin } from "../../utils/mixin";
+import { FONT_SIZE_LIST } from "../../utils/book";
 export default {
-  mixins: [
-    ebookMixin
-  ],
+  mixins: [ebookMixin],
   data() {
     return {
       fontSizeList: FONT_SIZE_LIST
@@ -56,7 +54,7 @@ export default {
       this.currentBook.rendition.themes.fontSize(fontSize);
     },
     showFontFamilyPopup() {
-      console.log('popup')
+      this.setFontFamilyVisible(true);
     }
   }
 };
