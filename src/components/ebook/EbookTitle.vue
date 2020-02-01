@@ -49,7 +49,7 @@ export default {
   .left {
     flex: 0 0 px2rem(60);
     margin-left: px2rem(15);
-    @include center;
+    @include left;
   }
   .right {
     flex: 1;

@@ -17,7 +17,7 @@
 // 动画效果 - 进入后, 移出前
 // 统一位移距离为108px，解决菜单栏和设置面板过渡动画不同步的问题
 .slide-up-enter, .slide-up-leave-to {
-  transform: translate3d(0, px2rem(108), 0)
+  transform: translate3d(0, px2rem(138), 0)
 }
 
 .fade-enter, .fade-leave-to {

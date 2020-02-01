@@ -18,6 +18,7 @@ export default {
 
       // 解析电子书并渲染
       this.book = new Epub(url);
+      this.setCurrentBook(this.book)
       console.log(this.book);
       this.rendition = this.book.renderTo("read", {
         width: window.innerWidth,
@@ -65,11 +66,15 @@ export default {
     },
     // 显示标题栏和菜单栏
     toggleTitleAndMenu() {
+      if (this.menuVisible) {
+        this.setSettingVisible(-1);
+      }
       this.setMenuVisible(!this.menuVisible);
     },
     // 隐藏标题栏和菜单栏
     hideTitleAndMenu() {
       this.setMenuVisible(false);
+      this.setSettingVisible(-1);
     }
   },
   mounted() {
