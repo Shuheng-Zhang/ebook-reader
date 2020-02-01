@@ -7,10 +7,36 @@
 <script>
 import Epub from "epubjs";
 import { ebookMixin } from "../../utils/mixin";
+import {
+  getFontFamily,
+  saveFontFamily,
+  getFontSize,
+  saveFontSize
+} from "../../utils/localStoreage.js";
 
 export default {
   mixins: [ebookMixin],
   methods: {
+    // 初始化字号配置数据
+    initFontSize() {
+      let fontSize = getFontSize(this.fileName);
+      if (!fontSize) {
+        saveFontSize(this.fileName, this.defaultFontSize);
+      } else {
+        this.rendition.themes.fontSize(fontSize);
+        this.setDefaultFontSize(fontSize);
+      }
+    },
+    // 初始化字体配置数据
+    initFontFamily() {
+      let font = getFontFamily(this.fileName);
+      if (!font) {
+        saveFontFamily(this.fileName, this.defaultFontFamily);
+      } else {
+        this.rendition.themes.font(font);
+        this.setDefaultFontFamily(font);
+      }
+    },
     // 初始化电子书
     initEpub() {
       // 匹配电子书路径
@@ -26,7 +52,11 @@ export default {
         method: "default" // 微信兼容
       });
       // 展示电子书内容
-      this.rendition.display();
+      this.rendition.display().then(() => {
+        // 从离线存储中获取并应用配置数据
+        this.initFontSize();
+        this.initFontFamily();
+      });
 
       // 使用 rendition.on() 方法动态绑定事件到 iframe
       // 手势操作事件处理
@@ -53,12 +83,20 @@ export default {
       // 加载阅读器渲染用字体文件
       this.rendition.hooks.content.register(contents => {
         Promise.all([
-          contents.addStylesheet(`${process.env.VUE_APP_RES_URL}/fonts/cabin.css`),
-          contents.addStylesheet(`${process.env.VUE_APP_RES_URL}/fonts/daysOne.css`),
-          contents.addStylesheet(`${process.env.VUE_APP_RES_URL}/fonts/tangerine.css`),
-          contents.addStylesheet(`${process.env.VUE_APP_RES_URL}/fonts/montserrat.css`)
+          contents.addStylesheet(
+            `${process.env.VUE_APP_RES_URL}/fonts/cabin.css`
+          ),
+          contents.addStylesheet(
+            `${process.env.VUE_APP_RES_URL}/fonts/daysOne.css`
+          ),
+          contents.addStylesheet(
+            `${process.env.VUE_APP_RES_URL}/fonts/tangerine.css`
+          ),
+          contents.addStylesheet(
+            `${process.env.VUE_APP_RES_URL}/fonts/montserrat.css`
+          )
         ]).then(() => {
-          console.log('字体加载完成.')
+          console.log("字体加载完成.");
         });
       });
     },

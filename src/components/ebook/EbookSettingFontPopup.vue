@@ -30,7 +30,7 @@
 <script>
 import { ebookMixin } from "../../utils/mixin";
 import { FONT_FAMILY } from "../../utils/book";
-
+import { saveFontFamily } from '../../utils/localStoreage.js'
 export default {
   mixins: [ebookMixin],
   data() {
@@ -50,6 +50,9 @@ export default {
     // 设置字体
     setFontFamily(font) {
       this.setDefaultFontFamily(font);
+
+      // 将字体数据写入离线存储（LocalStorage）
+      saveFontFamily(this.fileName, font)
       if (font === "Default") {
         this.currentBook.rendition.themes.font("Times New Roman");
       } else {

@@ -40,6 +40,7 @@
 <script>
 import { ebookMixin } from "../../utils/mixin";
 import { FONT_SIZE_LIST } from "../../utils/book";
+import { saveFontSize } from "../../utils/localStoreage"
 export default {
   mixins: [ebookMixin],
   data() {
@@ -51,6 +52,7 @@ export default {
     // 设置字体大小
     setFontSize(fontSize) {
       this.setDefaultFontSize(fontSize);
+      saveFontSize(this.fileName, fontSize);
       this.currentBook.rendition.themes.fontSize(fontSize);
     },
     showFontFamilyPopup() {
