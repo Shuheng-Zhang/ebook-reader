@@ -1,5 +1,6 @@
 import { mapGetters, mapActions } from 'vuex'
-import { themeList } from './book'
+import { themeList, addCSS, removeAllCSS } from './book'
+
 export const ebookMixin = {
   computed: {
     ...mapGetters([
@@ -48,6 +49,26 @@ export const ebookMixin = {
       'setPagelist',
       'setOffsetY',
       'setIsBookmark'
-    ])
+    ]),
+    initGlobalStyle() {
+      removeAllCSS()
+      switch (this.defaultTheme) {
+        case "Default":
+          addCSS(`${process.env.VUE_APP_RES_URL}/theme/theme_default.css`);
+          break;
+        case "Eye":
+          addCSS(`${process.env.VUE_APP_RES_URL}/theme/theme_eye.css`);
+          break;
+        case "Gold":
+          addCSS(`${process.env.VUE_APP_RES_URL}/theme/theme_gold.css`);
+          break;
+        case "Night":
+          addCSS(`${process.env.VUE_APP_RES_URL}/theme/theme_night.css`);
+          break;
+        default:
+          addCSS(`${process.env.VUE_APP_RES_URL}/theme/theme_default.css`);
+          break;
+      }
+    }
   }
 }

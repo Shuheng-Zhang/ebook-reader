@@ -15,22 +15,24 @@ import {
   getTheme,
   saveTheme
 } from "../../utils/localStoreage.js";
+// import { addCSS } from "../../utils/book";
 
 export default {
   mixins: [ebookMixin],
   methods: {
+
     // 初始化主题样式
     initTheme() {
       let defaultTheme = getTheme(this.fileName);
       if (!defaultTheme) {
         defaultTheme = this.themeList[0].name;
-        this.setDefaultTheme(defaultTheme);
         saveTheme(this.fileName, defaultTheme);
       }
+      this.setDefaultTheme(defaultTheme);
       this.themeList.forEach(theme => {
-        this.rendition.themes.register(theme.name, theme.style)
-      })
-      this.rendition.themes.select(defaultTheme)
+        this.rendition.themes.register(theme.name, theme.style);
+      });
+      this.rendition.themes.select(defaultTheme);
     },
     // 初始化字号配置数据
     initFontSize() {
@@ -55,7 +57,8 @@ export default {
     // 初始化电子书
     initEpub() {
       // 匹配电子书路径
-      const url = "http://localhost:8085/epub/" + this.fileName + ".epub";
+      const url =
+        process.env.VUE_APP_RES_URL + "/epub/" + this.fileName + ".epub";
 
       // 解析电子书并渲染
       this.book = new Epub(url);
@@ -72,6 +75,8 @@ export default {
         this.initTheme();
         this.initFontSize();
         this.initFontFamily();
+
+        this.initGlobalStyle();
       });
 
       // 使用 rendition.on() 方法动态绑定事件到 iframe

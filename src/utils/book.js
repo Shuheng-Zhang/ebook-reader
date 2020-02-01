@@ -60,3 +60,32 @@ export function themeList(vue) {
     }
   ]
 }
+
+/**
+ * 动态添加主题样式
+ * @param {string} href 主题样式文件地址
+ */
+export function addCSS(href) {
+  const link = document.createElement('link');
+  link.setAttribute('rel', 'stylesheet');
+  link.setAttribute('type', 'text/css');
+  link.setAttribute('href', href);
+  document.getElementsByTagName('head')[0].appendChild(link);
+}
+
+export function removeCSS(href) {
+  const links = document.getElementsByTagName('link')
+  for (let i = links.length; i >= 0; i--) {
+    const link = links[i];
+    if (link && link.getAttribute('href') && link.getAttribute('href') === href) {
+      link.parentNode.removeChild(link)
+    }
+  }
+}
+
+export function removeAllCSS() {
+  removeCSS(`${process.env.VUE_APP_RES_URL}/theme/theme_default.css`)
+  removeCSS(`${process.env.VUE_APP_RES_URL}/theme/theme_eye.css`)
+  removeCSS(`${process.env.VUE_APP_RES_URL}/theme/theme_gold.css`)
+  removeCSS(`${process.env.VUE_APP_RES_URL}/theme/theme_night.css`)
+}
