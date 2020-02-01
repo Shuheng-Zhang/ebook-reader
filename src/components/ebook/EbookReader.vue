@@ -5,13 +5,11 @@
 </template>
 
 <script>
-import Epub from 'epubjs';
-import { mapGetters } from "vuex";
+import Epub from "epubjs";
+import { ebookMixin } from "../../utils/mixin";
 
 export default {
-  computed: {
-    ...mapGetters(["fileName"])
-  },
+  mixins: [ebookMixin],
   methods: {
     // 初始化电子书
     initEpub() {
@@ -20,20 +18,66 @@ export default {
 
       // 解析电子书并渲染
       this.book = new Epub(url);
-      console.log(this.book)
-      this.rendition = this.book.renderTo('read', {
+      console.log(this.book);
+      this.rendition = this.book.renderTo("read", {
         width: window.innerWidth,
         height: window.innerHeight,
-        method: 'default' // 微信兼容
-      })
+        method: "default" // 微信兼容
+      });
       // 展示电子书内容
-      this.rendition.display()
+      this.rendition.display();
+
+      // 使用 rendition.on() 方法动态绑定事件到 iframe
+      // 手势操作事件处理
+      this.rendition.on("touchstart", event => {
+        this.touchStartX = event.changedTouches[0].clientX;
+        this.touchStartTime = event.timeStamp;
+      });
+      this.rendition.on("touchend", event => {
+        const offSetX = event.changedTouches[0].clientX - this.touchStartX;
+        const time = event.timeStamp - this.touchStartTime;
+
+        if (time < 500 && offSetX > 40) {
+          this.prevPage(); // 上一页
+        } else if (time < 500 && offSetX < -40) {
+          this.nextPage(); // 下一页
+        } else {
+          this.toggleTitleAndMenu(); // 显示标题栏和菜单栏
+        }
+
+        // event.preventDefault(); // 禁用默认事件调用
+        event.stopPropagation(); // 禁止事件传播
+      });
+    },
+    // 上一页
+    prevPage() {
+      if (this.rendition) {
+        this.rendition.prev();
+        this.hideTitleAndMenu();
+      }
+    },
+    // 下一页
+    nextPage() {
+      if (this.rendition) {
+        this.rendition.next();
+        this.hideTitleAndMenu();
+      }
+    },
+    // 显示标题栏和菜单栏
+    toggleTitleAndMenu() {
+      this.setMenuVisible(!this.menuVisible);
+    },
+    // 隐藏标题栏和菜单栏
+    hideTitleAndMenu() {
+      this.setMenuVisible(false);
     }
   },
   mounted() {
-    this.$store.dispatch("setFileName", this.$route.params.filename.split("|").join("/")).then(() => {
-      this.initEpub();
-    });
+    this.setFileName(this.$route.params.filename.split("|").join("/")).then(
+      () => {
+        this.initEpub();
+      }
+    );
   }
 };
 </script>
