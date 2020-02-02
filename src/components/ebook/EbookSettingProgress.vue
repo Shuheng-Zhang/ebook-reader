@@ -37,7 +37,6 @@
 
 <script>
 import { ebookMixin } from "../../utils/mixin";
-import { getReadTime } from "../../utils/localStoreage";
 export default {
   mixins: [ebookMixin],
   data() {
@@ -45,18 +44,19 @@ export default {
   },
   computed: {
     getSectionName() {
-      if (this.section) {
-        const sectionInfo = this.currentBook.section(this.section);
-        if (sectionInfo && sectionInfo.href) {
-          let res = this.currentBook.navigation.get(sectionInfo.href).label;
-          console.log(res);
-          return res;
-        } else {
-          return "";
-        }
-      } else {
-        return "";
-      }
+      // if (this.section) {
+      //   const sectionInfo = this.currentBook.section(this.section);
+      //   if (sectionInfo && sectionInfo.href && this.currentBook && this.currentBook.navigation) {
+      //     let res = this.currentBook.navigation.get(sectionInfo.href).label;
+      //     console.log(res);
+      //     return res;
+      //   } else {
+      //     return "";
+      //   }
+      // } else {
+      //   return "";
+      // }
+      return this.section ? this.navigation[this.section].label : "";
     }
   },
   methods: {
@@ -109,21 +109,6 @@ export default {
         this.setSection(this.section + 1).then(() => {
           this.displaySection();
         });
-      }
-    },
-    // 获取阅读时间
-    getReadTimeText() {
-      return this.$t("book.haveRead").replace(
-        "$1",
-        this.getReadTimeByMinutes(this.fileName)
-      );
-    },
-    getReadTimeByMinutes() {
-      const readTime = getReadTime(this.fileName)
-      if (!readTime) {
-        return 0
-      } else {
-        return Math.ceil(readTime / 60)
       }
     }
   },

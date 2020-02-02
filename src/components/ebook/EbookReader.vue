@@ -16,7 +16,7 @@ import {
   saveTheme,
   getLocation
 } from "../../utils/localStoreage.js";
-// import { addCSS } from "../../utils/book";
+import { flatten } from "../../utils/book";
 
 export default {
   mixins: [ebookMixin],
@@ -117,6 +117,31 @@ export default {
         event.stopPropagation(); // 禁止事件传播
       });
     },
+    // 解析电子书
+    paresBook() {
+      // 获取电子书元数据
+      this.book.loaded.metadata.then(metadata => {
+        console.log(metadata);
+        this.setMetadata(metadata);
+      });
+      // 获取封面
+      this.book.loaded.cover.then(cover => {
+        this.book.archive.createUrl(cover).then(url => {
+          this.setCover(url);
+        });
+      });
+      // 获取电子书目录数据
+      this.book.loaded.navigation.then(nav => {
+        const navItem = flatten(nav.toc)
+        function find(item, level = 0) {
+          return !item.parent ? level : find(navItem.filter(parentItem => parentItem.id === item.parent)[0], ++level);
+        }
+        navItem.forEach(item => {
+          item.level = find(item)
+        })
+        this.setNavigation(navItem)
+      });
+    },
     // 初始化电子书
     initEpub() {
       // 匹配电子书路径
@@ -126,8 +151,11 @@ export default {
       this.book = new Epub(url);
       this.setCurrentBook(this.book);
       console.log(this.book);
+
       this.initRendition();
       this.initGesture();
+      // 解析电子书内容
+      this.paresBook();
 
       // 分页
       this.book.ready.then(() => {
@@ -137,7 +165,7 @@ export default {
           )
           .then(locations => {
             this.setBookAvailable(true);
-            this.refreshLocation()
+            this.refreshLocation();
           });
       });
     },
@@ -166,12 +194,6 @@ export default {
         this.setFontFamilyVisible(false);
       }
       this.setMenuVisible(!this.menuVisible);
-    },
-    // 隐藏标题栏和菜单栏
-    hideTitleAndMenu() {
-      this.setMenuVisible(false);
-      this.setSettingVisible(-1);
-      this.setFontFamilyVisible(false);
     }
   },
   mounted() {

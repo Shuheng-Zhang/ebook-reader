@@ -1,5 +1,5 @@
 import { mapGetters, mapActions } from 'vuex'
-import { themeList, addCSS, removeAllCSS } from './book'
+import { themeList, addCSS, removeAllCSS, getReadTimeByMinutes } from './book'
 import { saveLocation } from '../utils/localStoreage'
 
 export const ebookMixin = {
@@ -74,12 +74,14 @@ export const ebookMixin = {
     // 刷新当前进度
     refreshLocation() {
       const currentLocation = this.currentBook.rendition.currentLocation();
-      const startCfi = currentLocation.start.cfi
-      const progress = this.currentBook.locations.percentageFromCfi(startCfi);
-      this.setProgress(Math.floor(progress * 100));
-      this.setSection(currentLocation.start.index)
-      // 缓存当前阅读进度
-      saveLocation(this.fileName, startCfi)
+      if (currentLocation && currentLocation.start) {
+        const startCfi = currentLocation.start.cfi
+        const progress = this.currentBook.locations.percentageFromCfi(startCfi);
+        this.setProgress(Math.floor(progress * 100));
+        this.setSection(currentLocation.start.index)
+        // 缓存当前阅读进度
+        saveLocation(this.fileName, startCfi)
+      }
     },
     // 展示电子书内容页面
     display(target, callback) {
@@ -98,7 +100,19 @@ export const ebookMixin = {
           }
         })
       }
+    },
+    // 隐藏标题栏和菜单栏
+    hideTitleAndMenu() {
+      this.setMenuVisible(false);
+      this.setSettingVisible(-1);
+      this.setFontFamilyVisible(false);
+    },
+    // 获取阅读时间
+    getReadTimeText() {
+      return this.$t("book.haveRead").replace(
+        "$1",
+        getReadTimeByMinutes(this.fileName)
+      );
     }
-
   }
 }

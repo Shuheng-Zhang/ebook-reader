@@ -1,3 +1,5 @@
+import { getReadTime } from './localStoreage'
+
 export const FONT_SIZE_LIST = [
   { fontSize: 12 },
   { fontSize: 14 },
@@ -87,4 +89,21 @@ export function removeAllCSS() {
   removeCSS(`${process.env.VUE_APP_RES_URL}/theme/theme_eye.css`)
   removeCSS(`${process.env.VUE_APP_RES_URL}/theme/theme_gold.css`)
   removeCSS(`${process.env.VUE_APP_RES_URL}/theme/theme_night.css`)
+}
+
+export function getReadTimeByMinutes(fileName) {
+  const readTime = getReadTime(fileName)
+  if (!readTime) {
+    return 0
+  } else {
+    return Math.ceil(readTime / 60)
+  }
+}
+
+// 电子书目录数据数组降维至一维数组
+// 利用扩展运算符（...）对数组进行拆解
+// 利用 concat() 方法进行重新组合
+// 递归调用 flatten() 方法实现对数组的多级降维
+export function flatten(array) {
+  return [].concat(...array.map(item => [].concat(item, ...flatten(item.subitems))))
 }
