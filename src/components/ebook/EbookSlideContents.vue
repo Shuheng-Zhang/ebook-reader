@@ -8,8 +8,10 @@
         <input
           class="slide-contents-search-input"
           type="text"
+          v-model="searchText"
           :placeholder="$t('book.searchHint')"
           @click="showSearchPage"
+          @keyup.enter.exact="execSearch"
         />
       </div>
       <div
@@ -18,13 +20,13 @@
         @click="hideSearchPage"
       >{{ $t('book.cancel') }}</div>
     </div>
-    <div class="slide-contents-book-wrapper">
+    <div class="slide-contents-book-wrapper" v-show="!searchVisiable">
       <div class="slide-contents-book-img-wrapper">
         <img class="slide-contents-book-img" :src="cover" />
       </div>
       <div class="slide-contents-book-info-wrapper">
-        <div class="slide-contents-book-title">{{ metadata.title }}</div>
-        <div class="slide-contents-book-author">{{ metadata.creator }}</div>
+        <div class="slide-contents-book-title">{{ title }}</div>
+        <div class="slide-contents-book-author">{{ author }}</div>
       </div>
       <div class="slide-contents-book-progress-wrapper">
         <div class="slide-contents-book-progress">
@@ -34,16 +36,31 @@
         <div class="slide-contents-book-time">{{ getReadTimeText() }}</div>
       </div>
     </div>
-    <Scroll class="slide-contents-list" :top="156" :bottom="48" ref="scroll">
+    <Scroll
+      class="slide-contents-list"
+      v-show="!searchVisiable"
+      :top="156"
+      :bottom="48"
+      ref="scroll"
+    >
       <div class="slide-contents-item" v-for="(item, index) in navigation" :key="index">
         <span
           class="slide-contents-item-label"
           :style="contentItemStyle(item)"
           :class="{ 'selected': section === index }"
-          @click="displayNavigation(item.href)"
+          @click="displayTargetContent(item.href)"
         >{{ item.label }}</span>
         <span class="slide-contents-item-page"></span>
       </div>
+    </Scroll>
+    <Scroll class="slide-search-list" :top="66" :bottom="48" v-show="searchVisiable">
+      <div
+        class="slide-search-item"
+        v-for="(item, index) in searchList"
+        :key="index"
+        v-html="item.excerpt"
+        @click="displayTargetContent(item.cfi, true)"
+      ></div>
     </Scroll>
   </div>
 </template>
@@ -60,12 +77,18 @@ export default {
   },
   data() {
     return {
-      searchVisiable: false
+      searchVisiable: false,
+      searchList: null,
+      searchText: "",
+      title: "",
+      author: ""
     };
   },
   methods: {
     hideSearchPage() {
       this.searchVisiable = false;
+      this.searchText = "";
+      this.serachList = null;
     },
     showSearchPage() {
       this.searchVisiable = true;
@@ -76,10 +99,49 @@ export default {
         marginLeft: `${px2rem(item.level * 15)}rem`
       };
     },
-    displayNavigation(href) {
-      this.display(href, () => {
+    // 内容搜索（全文搜索）
+    contentTextSearch(q) {
+      console.log("do search");
+      return Promise.all(
+        this.currentBook.spine.spineItems.map(item =>
+          item
+            .load(this.currentBook.load.bind(this.currentBook))
+            .then(item.find.bind(item, q))
+            .finally(item.unload.bind(item))
+        )
+      ).then(results => Promise.resolve([].concat.apply([], results)));
+    },
+    // 执行内容搜索
+    execSearch() {
+      if (this.searchText && this.searchText.length > 0) {
+        this.contentTextSearch(this.searchText).then(list => {
+          this.searchList = list;
+          this.searchList.map(item => {
+            item.excerpt = item.excerpt.replace(this.searchText, `<span class="content-search-text">${this.searchText}</span>`);
+            return item;
+          });
+        });
+      }
+    },
+    // 显示目标内容
+    displayTargetContent(target, highlight = false) {
+      this.display(target, () => {
         this.hideTitleAndMenu();
-      });
+        if (highlight) {
+          this.currentBook.rendition.annotations.highlight(target)
+        }
+      })
+    }
+  },
+  updated() {
+    // 加载电子书标题信息
+    if (this.metadata && this.metadata.title) {
+      this.title = this.metadata.title;
+    }
+
+    // 加载电子书作者信息
+    if (this.metadata && this.metadata.creator) {
+      this.author = this.metadata.creator;
     }
   }
 };
@@ -184,6 +246,17 @@ export default {
       }
       .slide-contents-item-page {
       }
+    }
+  }
+  .slide-search-list {
+    width: 100%;
+    padding: 0 px2rem(15);
+    box-sizing: border-box;
+    .slide-search-item {
+      font-size: px2rem(14);
+      line-height: px2rem(16);
+      padding: px2rem(20) 0;
+      box-sizing: border-box;
     }
   }
 }
