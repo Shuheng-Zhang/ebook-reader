@@ -13,14 +13,14 @@ import {
   getFontSize,
   saveFontSize,
   getTheme,
-  saveTheme
+  saveTheme,
+  getLocation
 } from "../../utils/localStoreage.js";
 // import { addCSS } from "../../utils/book";
 
 export default {
   mixins: [ebookMixin],
   methods: {
-
     // 初始化主题样式
     initTheme() {
       let defaultTheme = getTheme(this.fileName);
@@ -54,51 +54,23 @@ export default {
         this.setDefaultFontFamily(font);
       }
     },
-    // 初始化电子书
-    initEpub() {
-      // 匹配电子书路径
-      const url =
-        process.env.VUE_APP_RES_URL + "/epub/" + this.fileName + ".epub";
-
+    // 初始化电子书渲染器
+    initRendition() {
       // 解析电子书并渲染
-      this.book = new Epub(url);
-      this.setCurrentBook(this.book);
-      console.log(this.book);
       this.rendition = this.book.renderTo("read", {
         width: window.innerWidth,
         height: window.innerHeight,
         method: "default" // 微信兼容
       });
-      // 展示电子书内容
-      this.rendition.display().then(() => {
+      // 获取当前电子书阅读位置并展示电子书内容
+      const location = getLocation(this.fileName);
+      this.display(location, () => {
         // 从离线存储中获取并应用配置数据
         this.initTheme();
         this.initFontSize();
         this.initFontFamily();
 
         this.initGlobalStyle();
-      });
-
-      // 使用 rendition.on() 方法动态绑定事件到 iframe
-      // 手势操作事件处理
-      this.rendition.on("touchstart", event => {
-        this.touchStartX = event.changedTouches[0].clientX;
-        this.touchStartTime = event.timeStamp;
-      });
-      this.rendition.on("touchend", event => {
-        const offSetX = event.changedTouches[0].clientX - this.touchStartX;
-        const time = event.timeStamp - this.touchStartTime;
-
-        if (time < 500 && offSetX > 40) {
-          this.prevPage(); // 上一页
-        } else if (time < 500 && offSetX < -40) {
-          this.nextPage(); // 下一页
-        } else {
-          this.toggleTitleAndMenu(); // 显示标题栏和菜单栏
-        }
-
-        // event.preventDefault(); // 禁用默认事件调用
-        event.stopPropagation(); // 禁止事件传播
       });
 
       // 加载阅读器渲染用字体文件
@@ -121,17 +93,69 @@ export default {
         });
       });
     },
+    // 初始化阅读器手势
+    initGesture() {
+      // 使用 rendition.on() 方法动态绑定事件到 iframe
+      // 手势操作事件处理
+      this.rendition.on("touchstart", event => {
+        this.touchStartX = event.changedTouches[0].clientX;
+        this.touchStartTime = event.timeStamp;
+      });
+      this.rendition.on("touchend", event => {
+        const offSetX = event.changedTouches[0].clientX - this.touchStartX;
+        const time = event.timeStamp - this.touchStartTime;
+
+        if (time < 500 && offSetX > 40) {
+          this.prevPage(); // 上一页
+        } else if (time < 500 && offSetX < -40) {
+          this.nextPage(); // 下一页
+        } else {
+          this.toggleTitleAndMenu(); // 显示标题栏和菜单栏
+        }
+
+        // event.preventDefault(); // 禁用默认事件调用
+        event.stopPropagation(); // 禁止事件传播
+      });
+    },
+    // 初始化电子书
+    initEpub() {
+      // 匹配电子书路径
+      const url =
+        process.env.VUE_APP_RES_URL + "/epub/" + this.fileName + ".epub";
+
+      this.book = new Epub(url);
+      this.setCurrentBook(this.book);
+      console.log(this.book);
+      this.initRendition();
+      this.initGesture();
+
+      // 分页
+      this.book.ready.then(() => {
+        return this.book.locations
+          .generate(
+            750 * (window.innerWidth / 375) * (getFontSize(this.fileName) / 16)
+          )
+          .then(locations => {
+            this.setBookAvailable(true);
+            this.refreshLocation()
+          });
+      });
+    },
     // 上一页
     prevPage() {
       if (this.rendition) {
-        this.rendition.prev();
+        this.rendition.prev().then(() => {
+          this.refreshLocation();
+        });
         this.hideTitleAndMenu();
       }
     },
     // 下一页
     nextPage() {
       if (this.rendition) {
-        this.rendition.next();
+        this.rendition.next().then(() => {
+          this.refreshLocation();
+        });
         this.hideTitleAndMenu();
       }
     },
