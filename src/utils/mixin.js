@@ -78,7 +78,15 @@ export const ebookMixin = {
         const startCfi = currentLocation.start.cfi
         const progress = this.currentBook.locations.percentageFromCfi(startCfi);
         this.setProgress(Math.floor(progress * 100));
-        this.setSection(currentLocation.start.index)
+        console.log(currentLocation)
+        // this.setSection(currentLocation.start.index)
+        // 解决进度条标题与目录标题匹配问题
+        for (let i = 0; i < this.navigation.length; i++) {
+          if (this.navigation[i].href === currentLocation.start.href) {
+            this.setSection(i)
+            break;
+          }
+        }
         // 缓存当前阅读进度
         saveLocation(this.fileName, startCfi)
       }

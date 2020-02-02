@@ -36,7 +36,12 @@
     </div>
     <Scroll class="slide-contents-list" :top="156" :bottom="48" ref="scroll">
       <div class="slide-contents-item" v-for="(item, index) in navigation" :key="index">
-        <span class="slide-contents-item-label" :class="{ 'selected': section === index }" :style="contentItemStyle(item)" @click="displayNavigation(item.href)">{{ item.label }}</span>
+        <span
+          class="slide-contents-item-label"
+          :style="contentItemStyle(item)"
+          :class="{ 'selected': section === index }"
+          @click="displayNavigation(item.href)"
+        >{{ item.label }}</span>
         <span class="slide-contents-item-page"></span>
       </div>
     </Scroll>
@@ -73,8 +78,8 @@ export default {
     },
     displayNavigation(href) {
       this.display(href, () => {
-        this.hideTitleAndMenu()
-      })
+        this.hideTitleAndMenu();
+      });
     }
   }
 };

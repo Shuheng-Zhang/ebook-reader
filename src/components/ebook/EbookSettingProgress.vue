@@ -56,7 +56,13 @@ export default {
       // } else {
       //   return "";
       // }
-      return this.section ? this.navigation[this.section].label : "";
+      // return this.section ? this.navigation[this.section].label : "";
+      if (this.section) {
+        console.log(this.section, this.navigation[this.section], this.navigation[this.section].label);
+        return this.navigation[this.section].label;
+      } else {
+        return ''
+      }
     }
   },
   methods: {
@@ -84,10 +90,9 @@ export default {
         this.updateProgressBackground();
       });
     },
-    // 跳转并显示指定章节首页
+    // 跳转并显示指定页
     displaySection() {
-      const sectionInfo = this.currentBook.section(this.section);
-      console.log(sectionInfo);
+      const sectionInfo = this.navigation[this.section];
       if (sectionInfo && sectionInfo.href) {
         this.display(sectionInfo.href);
       }
@@ -103,11 +108,13 @@ export default {
     // 跳转到下一章
     nextSection() {
       if (
-        this.section < this.currentBook.spine.length - 1 &&
+        this.section < this.navigation.length - 1 &&
         this.bookAvailable
       ) {
+        console.log(this.section)
         this.setSection(this.section + 1).then(() => {
           this.displaySection();
+          console.log(this.section)
         });
       }
     }
