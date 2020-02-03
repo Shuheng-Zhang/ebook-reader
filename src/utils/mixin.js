@@ -23,7 +23,8 @@ export const ebookMixin = {
       'paginate',
       'pagelist',
       'offsetY',
-      'isBookmark'
+      'isBookmark',
+      'highlightTarget'
     ]),
     themeList() {
       return themeList(this);
@@ -52,7 +53,8 @@ export const ebookMixin = {
       'setPaginate',
       'setPagelist',
       'setOffsetY',
-      'setIsBookmark'
+      'setIsBookmark',
+      'setHighlightTarget'
     ]),
     initGlobalStyle() {
       removeAllCSS()

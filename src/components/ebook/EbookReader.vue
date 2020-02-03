@@ -1,10 +1,14 @@
 <template>
   <div class="ebook-reader">
     <div id="read"></div>
-    <div class="ebook-reader-mask"
-    @click="onMaskClick"
-    @touchmove="execMove"
-    @touchend="cancelMove"
+    <div
+      class="ebook-reader-mask"
+      @click="onMaskClick"
+      @touchmove="execMove"
+      @touchend="cancelMove"
+      @mousedown.left="onMouseLeftEnter"
+      @mousemove.left="onMouseLeftMove"
+      @mouseup.left="onMouseLeftUp"
     ></div>
   </div>
 </template>
@@ -124,34 +128,82 @@ export default {
     },
     // 蒙板点击事件
     onMaskClick(event) {
-      const offSetX = event.offsetX
-      console.log('offSetX', offSetX)
-      let width = window.innerWidth
-      console.log('windwo width', width)
+      // 规避PC端鼠标下拉操作时的点击事件
+      if (this.mouseStat && (this.mouseStat === 2 || this.mouseStat === 3)) {
+        return;
+      }
+      const offSetX = event.offsetX;
+      console.log("offSetX", offSetX);
+      let width = window.innerWidth;
+      console.log("windwo width", width);
       if (offSetX > 0 && offSetX < width * 0.3) {
-        this.prevPage()
+        this.prevPage();
       } else if (offSetX > 0 && offSetX > width * 0.7) {
-        this.nextPage()
+        this.nextPage();
       } else {
-        this.toggleTitleAndMenu()
+        this.toggleTitleAndMenu();
       }
     },
     // 执行下拉动作
     execMove(event) {
       let offsetY = 0;
       if (this.firstOffsetY) {
-        offsetY = event.changedTouches[0].clientY - this.firstOffsetY
-        this.setOffsetY(offsetY)
+        offsetY = event.changedTouches[0].clientY - this.firstOffsetY;
+        this.setOffsetY(offsetY);
       } else {
-        this.firstOffsetY = event.changedTouches[0].clientY
+        this.firstOffsetY = event.changedTouches[0].clientY;
       }
-      event.preventDefault()
-      event.stopPropagation()
+      event.preventDefault();
+      event.stopPropagation();
     },
     // 结束下拉动作并重置相关数值
     cancelMove(event) {
-      this.setOffsetY(0)
-      this.firstOffsetY = null
+      this.setOffsetY(0);
+      this.firstOffsetY = null;
+    },
+    // 兼容PC端手势事件
+    // 状态1 鼠标点击
+    onMouseLeftEnter(event) {
+      this.mouseStat = 1;
+      this.mouseStartTime = event.timeStamp;
+      event.preventDefault();
+      event.stopPropagation();
+    },
+    // 状态2 鼠标点击后移动
+    onMouseLeftMove(event) {
+      if (this.mouseStat === 1) {
+        this.mouseStat = 2;
+      } else if (this.mouseStat === 2) {
+        let offsetY = 0;
+        if (this.firstOffsetY) {
+          offsetY = event.clientY - this.firstOffsetY;
+          this.setOffsetY(offsetY);
+        } else {
+          this.firstOffsetY = event.clientY;
+        }
+      }
+      event.preventDefault();
+      event.stopPropagation();
+    },
+    // 状态3 鼠标释放
+    onMouseLeftUp(event) {
+      if (this.mouseStat === 2) {
+        this.setOffsetY(0);
+        this.firstOffsetY = null;
+        this.mouseStat = 3;
+      } else {
+        this.mouseStat = 4;
+      }
+
+      // 优化PC端鼠标事件
+      // 鼠标点击时的轻微移动亦认定为点击事件
+      const t = event.timeStamp - this.mouseStartTime;
+      if (t < 200) {
+        this.mouseStat = 4;
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
     },
     // 解析电子书
     paresBook() {
@@ -168,14 +220,19 @@ export default {
       });
       // 获取电子书目录数据
       this.book.loaded.navigation.then(nav => {
-        const navItem = flatten(nav.toc)
+        const navItem = flatten(nav.toc);
         function find(item, level = 0) {
-          return !item.parent ? level : find(navItem.filter(parentItem => parentItem.id === item.parent)[0], ++level);
+          return !item.parent
+            ? level
+            : find(
+              navItem.filter(parentItem => parentItem.id === item.parent)[0],
+              ++level
+            );
         }
         navItem.forEach(item => {
-          item.level = find(item)
-        })
-        this.setNavigation(navItem)
+          item.level = find(item);
+        });
+        this.setNavigation(navItem);
       });
     },
     // 初始化电子书
@@ -210,6 +267,10 @@ export default {
       if (this.rendition) {
         this.rendition.prev().then(() => {
           this.refreshLocation();
+          if (this.highlightTarget) {
+            this.rendition.annotations.remove(this.highlightTarget, 'highlight');
+            this.setHighlightTarget(null);
+          }
         });
         this.hideTitleAndMenu();
       }
@@ -219,6 +280,10 @@ export default {
       if (this.rendition) {
         this.rendition.next().then(() => {
           this.refreshLocation();
+          if (this.highlightTarget) {
+            this.rendition.annotations.remove(this.highlightTarget, 'highlight');
+            this.setHighlightTarget(null);
+          }
         });
         this.hideTitleAndMenu();
       }

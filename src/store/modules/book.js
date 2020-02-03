@@ -18,7 +18,8 @@ const book = {
     paginate: '',
     pagelist: null,
     offsetY: 0,
-    isBookmark: null
+    isBookmark: null,
+    highlightTarget: null
   },
   mutations: {
     'SET_FILENAME': (state, fileName) => {
@@ -80,6 +81,9 @@ const book = {
     },
     'SET_SPEAKING_ICON_BOTTOM': (state, speakingIconBottom) => {
       state.speakingIconBottom = speakingIconBottom
+    },
+    'SET_HIGHLIGHT_TARGET': (state, highlightTarget) => {
+      state.highlightTarget = highlightTarget
     }
   }
 }

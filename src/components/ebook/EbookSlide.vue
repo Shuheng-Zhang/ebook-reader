@@ -8,8 +8,16 @@
               <component :is="currentTab === 1 ? content : bookmark"></component>
             </div>
             <div class="content-page-tab">
-              <div class="content-page-tab-item" :class="{ 'selected': currentTab === 1 }" @click="selectTab(1)">{{ $t('book.navigation') }}</div>
-              <div class="content-page-tab-item" :class="{ 'selected': currentTab === 2 }" @click="selectTab(2)">{{ $t('book.bookmark') }}</div>
+              <div
+                class="content-page-tab-item"
+                :class="{ 'selected': currentTab === 1 }"
+                @click="selectTab(1)"
+              >{{ $t('book.navigation') }}</div>
+              <div
+                class="content-page-tab-item"
+                :class="{ 'selected': currentTab === 2 }"
+                @click="selectTab(2)"
+              >{{ $t('book.bookmark') }}</div>
             </div>
           </div>
           <div class="content-empty" v-else>
@@ -25,9 +33,9 @@
 
 <script>
 import { ebookMixin } from "../../utils/mixin";
-import EbookSlideContents from './EbookSlideContents'
-import EbookSlideBookmark from './EbookSlideBookmark'
-import EbookLoading from './EbookLoading'
+import EbookSlideContents from "./EbookSlideContents";
+import EbookSlideBookmark from "./EbookSlideBookmark";
+import EbookLoading from "./EbookLoading";
 
 export default {
   mixins: [ebookMixin],
@@ -43,7 +51,7 @@ export default {
   },
   methods: {
     selectTab(tab) {
-      this.currentTab = tab
+      this.currentTab = tab;
     }
   }
 };

@@ -55,6 +55,9 @@ const actions = {
   },
   setOffsetY({ commit }, offsetY) {
     return commit('SET_OFFSETY', offsetY)
+  },
+  setHighlightTarget({ commit }, highlightTarget) {
+    return commit('SET_HIGHLIGHT_TARGET', highlightTarget)
   }
 }
 
