@@ -136,6 +136,7 @@ export default {
         this.toggleTitleAndMenu()
       }
     },
+    // 执行下拉动作
     execMove(event) {
       let offsetY = 0;
       if (this.firstOffsetY) {
@@ -147,6 +148,7 @@ export default {
       event.preventDefault()
       event.stopPropagation()
     },
+    // 结束下拉动作并重置相关数值
     cancelMove(event) {
       this.setOffsetY(0)
       this.firstOffsetY = null
