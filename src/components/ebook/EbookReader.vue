@@ -267,6 +267,7 @@ export default {
       if (this.rendition) {
         this.rendition.prev().then(() => {
           this.refreshLocation();
+          // 关闭高亮
           if (this.highlightTarget) {
             this.rendition.annotations.remove(this.highlightTarget, 'highlight');
             this.setHighlightTarget(null);
@@ -280,6 +281,7 @@ export default {
       if (this.rendition) {
         this.rendition.next().then(() => {
           this.refreshLocation();
+          // 关闭高亮
           if (this.highlightTarget) {
             this.rendition.annotations.remove(this.highlightTarget, 'highlight');
             this.setHighlightTarget(null);
