@@ -1,13 +1,15 @@
 <template>
 <div class='store-home'>
-  store home
+  <SearchBar></SearchBar>
 </div>
 </template>
 
 <script>
-
+import SearchBar from '../../components/home/SearchBar'
 export default {
-  components: {},
+  components: {
+    SearchBar
+  },
   data() {
     return {
 
