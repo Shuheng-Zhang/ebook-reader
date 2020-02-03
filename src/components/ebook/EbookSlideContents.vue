@@ -128,7 +128,9 @@ export default {
       this.display(target, () => {
         this.hideTitleAndMenu();
         if (highlight) {
-          this.currentBook.rendition.annotations.highlight(target)
+          this.currentBook.rendition.annotations.highlight(target).then((res) => {
+            console.log('height', res)
+          })
         }
       })
     }

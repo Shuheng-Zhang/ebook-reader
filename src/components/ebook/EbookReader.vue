@@ -1,6 +1,11 @@
 <template>
   <div class="ebook-reader">
     <div id="read"></div>
+    <div class="ebook-reader-mask"
+    @click="onMaskClick"
+    @touchmove="execMove"
+    @touchend="cancelMove"
+    ></div>
   </div>
 </template>
 
@@ -117,6 +122,35 @@ export default {
         event.stopPropagation(); // 禁止事件传播
       });
     },
+    // 蒙板点击事件
+    onMaskClick(event) {
+      const offSetX = event.offsetX
+      console.log('offSetX', offSetX)
+      let width = window.innerWidth
+      console.log('windwo width', width)
+      if (offSetX > 0 && offSetX < width * 0.3) {
+        this.prevPage()
+      } else if (offSetX > 0 && offSetX > width * 0.7) {
+        this.nextPage()
+      } else {
+        this.toggleTitleAndMenu()
+      }
+    },
+    execMove(event) {
+      let offsetY = 0;
+      if (this.firstOffsetY) {
+        offsetY = event.changedTouches[0].clientY - this.firstOffsetY
+        this.setOffsetY(offsetY)
+      } else {
+        this.firstOffsetY = event.changedTouches[0].clientY
+      }
+      event.preventDefault()
+      event.stopPropagation()
+    },
+    cancelMove(event) {
+      this.setOffsetY(0)
+      this.firstOffsetY = null
+    },
     // 解析电子书
     paresBook() {
       // 获取电子书元数据
@@ -153,7 +187,7 @@ export default {
       console.log(this.book);
 
       this.initRendition();
-      this.initGesture();
+      // this.initGesture();
       // 解析电子书内容
       this.paresBook();
 
@@ -208,4 +242,18 @@ export default {
 
 <style lang="scss" scoped>
 @import "../../assets/styles/global.scss";
+.ebook-reader {
+  width: 100%;
+  height: 100;
+  overflow: hidden;
+  .ebook-reader-mask {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 150;
+    background: transparent;
+  }
+}
 </style>
