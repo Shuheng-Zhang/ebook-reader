@@ -1,8 +1,10 @@
 <template>
   <div class="ebook" ref="ebook">
     <EbookTitle></EbookTitle>
+    <EbookHeader></EbookHeader>
     <EBookReader></EBookReader>
     <EbookMenu></EbookMenu>
+    <EbookFooter></EbookFooter>
     <EbookBookMark></EbookBookMark>
   </div>
 </template>
@@ -12,6 +14,8 @@ import EbookTitle from "../../components/ebook/EbookTitle.vue";
 import EBookReader from "../../components/ebook/EbookReader.vue";
 import EbookMenu from "../../components/ebook/EbookMenu.vue";
 import EbookBookMark from "../../components/ebook/EbookBookMark.vue";
+import EbookFooter from "../../components/ebook/EbookFooter.vue"
+import EbookHeader from "../../components/ebook/EbookHeader.vue";
 
 import { ebookMixin } from "../../utils/mixin";
 import { getReadTime, saveReadTime } from "../../utils/localStoreage";
@@ -22,7 +26,9 @@ export default {
     EbookTitle,
     EBookReader,
     EbookMenu,
-    EbookBookMark
+    EbookBookMark,
+    EbookHeader,
+    EbookFooter
   },
   methods: {
     startLoopReadTime() {

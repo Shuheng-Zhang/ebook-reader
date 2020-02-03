@@ -42,29 +42,6 @@ export default {
   data() {
     return {};
   },
-  computed: {
-    getSectionName() {
-      // if (this.section) {
-      //   const sectionInfo = this.currentBook.section(this.section);
-      //   if (sectionInfo && sectionInfo.href && this.currentBook && this.currentBook.navigation) {
-      //     let res = this.currentBook.navigation.get(sectionInfo.href).label;
-      //     console.log(res);
-      //     return res;
-      //   } else {
-      //     return "";
-      //   }
-      // } else {
-      //   return "";
-      // }
-      // return this.section ? this.navigation[this.section].label : "";
-      if (this.section) {
-        console.log(this.section, this.navigation[this.section], this.navigation[this.section].label);
-        return this.navigation[this.section].label;
-      } else {
-        return ''
-      }
-    }
-  },
   methods: {
     // 显示当前进度页面
     displayProgress() {
