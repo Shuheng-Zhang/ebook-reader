@@ -1,6 +1,6 @@
 import { mapGetters, mapActions } from 'vuex'
 import { themeList, addCSS, removeAllCSS, getReadTimeByMinutes } from './book'
-import { saveLocation } from '../utils/localStoreage'
+import { saveLocation, getBookmark } from '../utils/localStoreage'
 
 export const ebookMixin = {
   computed: {
@@ -89,6 +89,17 @@ export const ebookMixin = {
         }
         // 缓存当前阅读进度
         saveLocation(this.fileName, startCfi)
+
+        const bookmark = getBookmark(this.fileName)
+        if (bookmark) {
+          if (bookmark.some(item => item.cfi === startCfi)) {
+            this.setIsBookmark(true)
+          } else {
+            this.setIsBookmark(false)
+          }
+        } else {
+          this.setIsBookmark(false)
+        }
       }
     },
     // 展示电子书内容页面

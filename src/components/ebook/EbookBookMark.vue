@@ -17,6 +17,8 @@ import Bookmark from "../common/Bookmark";
 import { realPx } from "../../utils/utils";
 import { ebookMixin } from "../../utils/mixin";
 
+import { getBookmark, saveBookmark } from "../../utils/localStoreage";
+
 const BOOKMARK_COLOR_BLUE = "#346cbc";
 const BOOKMARK_COLOR_WHITE = "#ffffff";
 
@@ -49,9 +51,43 @@ export default {
   },
   methods: {
     // 添加书签
-    addBookmark() {},
+    addBookmark() {
+      this.bookmarkList = getBookmark(this.fileName);
+      if (!this.bookmarkList) {
+        this.bookmarkList = [];
+      }
+      const currentLocation = this.currentBook.rendition.currentLocation();
+      const cfiBase = currentLocation.start.cfi.replace(/!.*/, "");
+      const cfiStart = currentLocation.start.cfi
+        .replace(/.*!/, "")
+        .replace(/\)$/, "");
+      const cfiEnd = currentLocation.end.cfi
+        .replace(/.*!/, "")
+        .replace(/\)$/, "");
+      const cfiRange = `${cfiBase}!,${cfiStart},${cfiEnd})`;
+
+      this.currentBook.getRange(cfiRange).then(range => {
+        const rangeText = range.toString().replace(/\s\s/g, "");
+        this.bookmarkList.push({
+          cfi: currentLocation.start.cfi,
+          text: rangeText
+        });
+        saveBookmark(this.fileName, this.bookmarkList);
+      });
+    },
     // 移除书签
-    removeBookmark() {},
+    removeBookmark() {
+      const currentLocation = this.currentBook.rendition.currentLocation();
+      const cfi = currentLocation.start.cfi;
+      this.bookmarkList = getBookmark(this.fileName);
+      if (this.bookmarkList) {
+        saveBookmark(
+          this.fileName,
+          this.bookmarkList.filter(item => item.cfi !== cfi)
+        );
+        this.setIsBookmark(false);
+      }
+    },
     // 书签状态1 下拉到达书签高度前
     beforeBookmarkHeight() {
       if (this.isBookmark) {
@@ -106,10 +142,10 @@ export default {
 
       if (this.isFixed) {
         this.setIsBookmark(true);
-        this.addBookmark()
+        this.addBookmark();
       } else {
         this.setIsBookmark(false);
-        this.removeBookmark()
+        this.removeBookmark();
       }
     }
   },
@@ -133,6 +169,15 @@ export default {
         this.beforeBookmarkHeight();
       } else if (nv === 0) {
         this.reset();
+      }
+    },
+    isBookmark(isBookmark) {
+      if (isBookmark) {
+        this.color = BOOKMARK_COLOR_BLUE
+        this.isFixed = true;
+      } else {
+        this.color = BOOKMARK_COLOR_WHITE
+        this.isFixed = false;
       }
     }
   }
