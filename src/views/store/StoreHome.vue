@@ -1,28 +1,78 @@
 <template>
-<div class='store-home'>
-  <SearchBar></SearchBar>
-</div>
+  <div class="store-home">
+    <SearchBar></SearchBar>
+    <Scroll :top="scrollTop" @onScroll="onScroll" ref="scroll">
+      <div>scroll</div>
+      <div>scroll</div>
+      <div>scroll</div>
+      <div>scroll</div>
+      <div>scroll</div>
+      <div>scroll</div>
+      <div>scroll</div>
+      <div>scroll</div>
+      <div>scroll</div>
+      <div>scroll</div>
+      <div>scroll</div>
+      <div>scroll</div>
+      <div>scroll</div>
+      <div>scroll</div>
+      <div>scroll</div>
+      <div>scroll</div>
+      <div>scroll</div>
+      <div>scroll</div>
+      <div>scroll</div>
+      <div>scroll</div>
+      <div>scroll</div>
+      <div>scroll</div>
+      <div>scroll</div>
+      <div>scroll</div>
+      <div>scroll</div>
+      <div>scroll</div>
+      <div>scroll</div>
+      <div>scroll</div>
+      <div>scroll</div>
+      <div>scroll</div>
+      <div>scroll</div>
+      <div>scroll</div>
+      <div>scroll</div>
+      <div>scroll</div>
+      <div>scroll</div>
+      <div>scroll</div>
+    </Scroll>
+  </div>
 </template>
 
 <script>
-import SearchBar from '../../components/home/SearchBar'
+import Scroll from "../../components/common/Scroll";
+import SearchBar from "../../components/home/SearchBar";
+import { storeHomeMixin } from "../../utils/mixin"
 export default {
+  mixins: [storeHomeMixin],
   components: {
+    Scroll,
     SearchBar
   },
   data() {
     return {
-
+      scrollTop: 94
     };
   },
   methods: {
-
+    onScroll(offsetY) {
+      this.setOffsetY(offsetY);
+      if (offsetY > 0) {
+        this.scrollTop = 52;
+      } else {
+        this.scrollTop = 94
+      }
+      this.$refs.scroll.refresh()
+    }
   }
-}
+};
 </script>
 
 <style lang='scss' scoped>
-@import '../../assets/styles/global.scss';
+@import "../../assets/styles/global.scss";
 .store-home {
   width: 100%;
   height: 100%;
