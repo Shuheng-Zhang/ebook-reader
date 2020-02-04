@@ -1,39 +1,51 @@
 <template>
-  <div class="serach-bar" :class="{'hiding-title': !titleVisible, 'hide-shadow': !shadowVisible}">
-    <transition name="title-move">
-      <div class="search-bar-title-wrapper" v-show="titleVisible">
-        <div class="title-text-wrapper">
-          <span class="title-text title">{{ $t('home.title') }}</span>
+  <div>
+    <div class="serach-bar" :class="{'hiding-title': !titleVisible, 'hide-shadow': !shadowVisible}">
+      <transition name="title-move">
+        <div class="search-bar-title-wrapper" v-show="titleVisible">
+          <div class="title-text-wrapper">
+            <span class="title-text title">{{ $t('home.title') }}</span>
+          </div>
+          <div class="title-icon-shake-wrapper">
+            <span class="icon-shake icon"></span>
+          </div>
         </div>
-        <div class="title-icon-shake-wrapper">
-          <span class="icon-shake icon"></span>
+      </transition>
+      <div class="title-icon-back-wrapper" :class="{'hiding-title': !titleVisible}" @click="back">
+        <span class="icon-back icon"></span>
+      </div>
+      <div class="search-bar-input-wrapper" :class="{'hiding-title': !titleVisible}">
+        <div class="search-bar-blank" :class="{'hiding-title': !titleVisible}"></div>
+        <div class="search-bar-input">
+          <span class="icon-search icon"></span>
+          <input
+            type="text"
+            class="input"
+            :placeholder="$t('home.hint')"
+            v-model="searchText"
+            @click="showHotSearch"
+          />
         </div>
       </div>
-    </transition>
-    <div class="title-icon-back-wrapper" :class="{'hiding-title': !titleVisible}">
-      <span class="icon-back icon"></span>
     </div>
-
-    <div class="search-bar-input-wrapper" :class="{'hiding-title': !titleVisible}">
-      <div class="search-bar-blank" :class="{'hiding-title': !titleVisible}"></div>
-      <div class="search-bar-input">
-        <span class="icon-search icon"></span>
-        <input type="text" class="input" :placeholder="$t('home.hint')" v-model="searchText" />
-      </div>
-    </div>
+    <HotSearchList v-show="hotSearchVisible" ref="hotSearchList"></HotSearchList>
   </div>
 </template>
 
 <script>
 import { storeHomeMixin } from "../../utils/mixin";
+import HotSearchList from "./HotSearchList";
 export default {
   mixins: [storeHomeMixin],
-  components: {},
+  components: {
+    HotSearchList
+  },
   data() {
     return {
       searchText: "",
       titleVisible: true,
-      shadowVisible: false
+      shadowVisible: false,
+      hotSearchVisible: false
     };
   },
   methods: {
@@ -48,16 +60,45 @@ export default {
     },
     hideShadow() {
       this.shadowVisible = false;
+    },
+    showHotSearch() {
+      // 隐藏标题栏并展示热门搜索
+      this.hideTitle();
+      this.hideShadow();
+      this.hotSearchVisible = true;
+      this.$nextTick(() => {
+        this.$refs.hotSearchList.reset();
+      });
+    },
+    hideHotSearch() {
+      this.hotSearchVisible = false;
+    },
+    back() {
+      this.hideHotSearch();
+      if (this.offsetY > 0) {
+        this.hideTitle();
+        this.showShadow();
+      } else {
+        this.showTitle();
+        this.hideShadow();
+      }
     }
   },
   watch: {
-    offsetY(v) {
-      if (v > 0) {
-        this.hideTitle()
-        this.showShadow()
+    offsetY(offsetY) {
+      if (offsetY > 0) {
+        this.hideTitle();
+        this.showShadow();
       } else {
-        this.showTitle()
-        this.hideShadow()
+        this.showTitle();
+        this.hideShadow();
+      }
+    },
+    hotSearchOffsetY(hotSearchOffsetY) {
+      if (hotSearchOffsetY > 0) {
+        this.showShadow();
+      } else {
+        this.hideShadow();
       }
     }
   }
@@ -101,6 +142,7 @@ export default {
     position: absolute;
     top: 0;
     left: px2rem(15);
+    z-index: 200;
     height: px2rem(42);
     @include center;
     transition: height $animationTime $animationType;

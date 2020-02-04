@@ -18,7 +18,8 @@ const book = {
   pagelist: state => state.book.pagelist,
   offsetY: state => state.book.offsetY,
   isBookmark: state => state.book.isBookmark,
-  highlightTarget: state => state.book.highlightTarget
+  highlightTarget: state => state.book.highlightTarget, // 高亮文本搜索结果
+  hotSearchOffsetY: state => state.store.hotSearchOffsetY
 }
 
 export default book

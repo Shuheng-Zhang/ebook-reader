@@ -58,6 +58,9 @@ const actions = {
   },
   setHighlightTarget({ commit }, highlightTarget) {
     return commit('SET_HIGHLIGHT_TARGET', highlightTarget)
+  },
+  setHotSearchOffsetY({ commit }, hotSearchOffsetY) {
+    return commit('SET_HOT_SEARCH_OFFSETY', hotSearchOffsetY)
   }
 }
 

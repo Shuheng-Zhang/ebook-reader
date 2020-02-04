@@ -52,6 +52,12 @@ $fontSize: 37.5;
   }
 }
 
+@mixin columnLeft {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+}
 
 .icon {
   color: #666666;
