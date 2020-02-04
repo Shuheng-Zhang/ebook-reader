@@ -1,6 +1,6 @@
 <template>
   <div class="flap-card-wrapper" v-show="flapCardVisible">
-    <div class="flap-card-bg">
+    <div class="flap-card-bg" :class="{ 'animation': runFlapCardAnimation }">
       <div
         class="flap-card"
         v-for="(item, index) in flapCardList"
@@ -20,6 +20,9 @@
           ></div>
         </div>
       </div>
+      <div class="point-wrapper">
+        <div class="point" :class="{'animation': runPointAnimation }" v-for="item in pointList" :key="item"></div>
+      </div>
     </div>
     <div class="close-btn-wrapper" @click="close">
       <span class="icon-close"></span>
@@ -38,14 +41,17 @@ export default {
       flapCardList: FLAP_CARD_LIST,
       frontFlapCardIndex: 0,
       backFlapCardIndex: 1,
-      intervalTime: 25
+      intervalTime: 25,
+      runFlapCardAnimation: false,
+      pointList: null,
+      runPointAnimation: false
     };
   },
   methods: {
     // 关闭卡片所在面板
     close() {
       this.setFlapCardVisible(false);
-      this.stopFlapCardAnimation()
+      this.stopFlapCardAnimation();
     },
     // 设置半圆样式
     semiCircleStyle(item, direction) {
@@ -155,6 +161,11 @@ export default {
       this.task = setInterval(() => {
         this.flapCardRotate();
       }, this.intervalTime);
+
+      setTimeout(() => {
+        this.runFlapCardAnimation = false;
+        this.stopFlapCardAnimation()
+      }, 2500)
     },
     // 停止卡片翻转动画
     stopFlapCardAnimation() {
@@ -162,14 +173,33 @@ export default {
         clearInterval(this.task);
       }
       this.reset();
+    },
+    startPointAnimation() {
+      this.runPointAnimation = true;
+      setTimeout(() => {
+        this.runPointAnimation = false;
+      }, 750)
+    },
+    runAnimation() {
+      this.runFlapCardAnimation = true;
+      setTimeout(() => {
+        this.startFlapCardAnimation();
+        this.startPointAnimation()
+      }, 300);
     }
   },
   watch: {
     // 当推荐面板展示时启动卡片翻转动画
     flapCardVisible(v) {
       if (v) {
-        this.startFlapCardAnimation();
+        this.runAnimation();
       }
+    }
+  },
+  created() {
+    this.pointList = []
+    for (let i = 0; i < 18; i++) {
+      this.pointList.push(`point${i}`)
     }
   }
 };
@@ -177,6 +207,7 @@ export default {
 
 <style lang='scss' scoped>
 @import "../../assets/styles/global.scss";
+@import '../../assets/styles/flapCard.scss';
 .flap-card-wrapper {
   width: 100%;
   height: 100%;
@@ -193,6 +224,29 @@ export default {
     height: px2rem(64);
     border-radius: px2rem(5);
     background: #ffffff;
+    transform: scale(0);
+    opacity: 0;
+    &.animation {
+      animation: flap-card-popup 0.3s ease-in both;
+    }
+    @keyframes flap-card-popup {
+      0% {
+        transform: scale(0);
+        opacity: 0;
+      }
+      50% {
+        transform: scale(1.2);
+        opacity: 1;
+      }
+      75% {
+        transform: scale(0.9);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
     .flap-card {
       @include absCenter;
       width: px2rem(48);
@@ -218,6 +272,21 @@ export default {
           background-position: center left;
           transform-origin: left;
           backface-visibility: hidden;
+        }
+      }
+    }
+    .point-wrapper {
+      z-index: 1500;
+      @include absCenter;
+      .point {
+        border-radius: 50%;
+        @include absCenter;
+        &.animation {
+          @for $i from 1 to length($moves) {
+            &:nth-child(#{$i}) {
+              @include move($i);
+            }
+          }
         }
       }
     }
