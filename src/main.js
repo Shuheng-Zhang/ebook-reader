@@ -14,6 +14,8 @@ import './assets/fonts/cabin.css'
 import './assets/fonts/tangerine.css'
 import './assets/fonts/montserrat.css'
 
+import './mock'
+
 Vue.config.productionTip = false
 
 new Vue({
