@@ -28,6 +28,7 @@ export default {
   methods: {
     back() {
       console.log('back')
+      this.$router.go(-1)
     }
   }
 };
@@ -41,7 +42,7 @@ export default {
   left: 0;
   width: 100%;
   height: px2rem(48);
-  z-index: 101;
+  z-index: 220;
   background-color: #fff;
   box-shadow: 0 px2rem(8) px2rem(8) rgba(0, 0, 0, 0.15);
   font-size: px2rem(20);
