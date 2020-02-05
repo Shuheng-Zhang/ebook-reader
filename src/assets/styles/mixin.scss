@@ -14,6 +14,12 @@ $fontSize: 37.5;
   align-items: center;
 }
 
+@mixin top {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
 @mixin left() {
   display: flex;
   justify-content: flex-start;
@@ -30,6 +36,13 @@ $fontSize: 37.5;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+  align-items: center;
+}
+
+@mixin columnCenter {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
 }
 
